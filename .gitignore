@@ -1,0 +1,31 @@
+# venv / キャッシュ
+venv/
+__pycache__/
+*.py[cod]
+
+# 出力物
+output/
+*.log
+
+# 入力データ（個人情報の可能性）
+data/
+*.csv
+*.parquet
+*.xlsx
+*.xls
+*.db
+*.sqlite*
+*.pkl
+
+# 認証情報・鍵
+.env
+*.key
+*.pem
+*.p12
+*credentials*.json
+client_secret*.json
+token*.json
+
+# OSごみ
+.DS_Store
+Thumbs.db
