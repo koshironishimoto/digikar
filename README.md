@@ -13,12 +13,18 @@ CSV と Parquet の両方の形式で出力されます。
 ## ディレクトリ構成
 data_anal/
 ├─ apps/
-│ └─ merge_data.py ← データ統合処理
-├─ main.py ← アプリ実行エントリポイント
-├─ data/ ← 元データ格納用（Git管理外）
-├─ output/ ← 出力フォルダ（Git管理外）
-├─ requirements.txt ← 必要パッケージ一覧
-├─ setup_venv.bat ← 仮想環境セットアップ用スクリプト
+│  ├─ merge_data.py
+│  ├─ find_duplicate_patients.py
+│  ├─ find_katakana_patients.py
+│  ├─ export_unique_patients.py
+│  ├─ inspect_headers.py
+│  └─ utils/
+│     └─ common.py
+├─ output/                ← Git管理外
+├─ data/                  ← Git管理外
+├─ main.py                ← 結合＋分析の統合エントリポイント
+├─ requirements.txt
+├─ setup_venv.bat
 └─ .gitignore
 
 

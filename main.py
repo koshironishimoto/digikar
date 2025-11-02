@@ -8,7 +8,8 @@ from apps.merge_data import load_all_periods, save_outputs
 from apps.find_duplicate_patients import find_duplicate_patients
 from apps.find_katakana_patients import find_katakana_patients
 from apps.inspect_headers import show_latest_headers
-from apps.export_unique_patients import export_unique_patients  # ★ 追加
+from apps.export_unique_patients import export_unique_patients
+from apps.export_unique_karte_core import export_unique_karte_core  # ★ 追加
 
 
 def run_duplicate_check() -> None:
@@ -43,12 +44,21 @@ def run_export_unique_patients() -> None:
         print(f"⚠ 一意患者リスト出力でエラー: {e}")
 
 
+def run_export_unique_karte_core() -> None:
+    print("\n--- ⑤ カルテID×患者番号で一意化したリストを出力（CSV/Parquet） ---")
+    try:
+        export_unique_karte_core()
+    except Exception as e:
+        print(f"⚠ karte一意リスト出力でエラー: {e}")
+
+
 def run_post_analyses() -> None:
     """結合完了後に行う分析をまとめて実行"""
     run_duplicate_check()
     run_katakana_check()
     run_show_headers()
     run_export_unique_patients()
+    run_export_unique_karte_core()  # ★ 追加
 
 
 def main() -> None:
