@@ -9,7 +9,10 @@ from apps.find_duplicate_patients import find_duplicate_patients
 from apps.find_katakana_patients import find_katakana_patients
 from apps.inspect_headers import show_latest_headers
 from apps.export_unique_patients import export_unique_patients
-from apps.export_unique_karte_core import export_unique_karte_core  # ★ 追加
+from apps.export_unique_karte_core import export_unique_karte_core
+from apps.join_procedure_with_patients import join_procedure_with_patients  # ⑥
+from apps.analyze_procedure_data import analyze_procedure_data              # ⑦ 追加
+from apps.export_unique_procedures import export_unique_procedures          # ⑧ 追加
 
 
 def run_duplicate_check() -> None:
@@ -52,13 +55,40 @@ def run_export_unique_karte_core() -> None:
         print(f"⚠ karte一意リスト出力でエラー: {e}")
 
 
+def run_join_procedure_with_patients() -> None:
+    print("\n--- ⑥ procedure に患者番号・氏名を付与して出力（CSV/Parquet） ---")
+    try:
+        join_procedure_with_patients()
+    except Exception as e:
+        print(f"⚠ procedure結合出力でエラー: {e}")
+
+
+def run_analyze_procedure_data() -> None:
+    print("\n--- ⑦ procedure集計のサマリ表示（ターミナル出力） ---")
+    try:
+        analyze_procedure_data()
+    except Exception as e:
+        print(f"⚠ procedure集計でエラー: {e}")
+
+
+def run_export_unique_procedures() -> None:
+    print("\n--- ⑧ 一意の処置行為リストを出力（CSV/Parquet） ---")
+    try:
+        export_unique_procedures()
+    except Exception as e:
+        print(f"⚠ 一意の処置行為リスト出力でエラー: {e}")
+
+
 def run_post_analyses() -> None:
-    """結合完了後に行う分析をまとめて実行"""
-    run_duplicate_check()
-    run_katakana_check()
-    run_show_headers()
-    run_export_unique_patients()
-    run_export_unique_karte_core()  # ★ 追加
+    """結合完了後に行う分析をまとめて実行（依存関係順）"""
+    run_duplicate_check()              # ①
+    run_katakana_check()               # ②
+    run_show_headers()                 # ③
+    run_export_unique_patients()       # ④
+    run_export_unique_karte_core()     # ⑤
+    run_join_procedure_with_patients() # ⑥（⑦,⑧の前提）
+    run_analyze_procedure_data()       # ⑦
+    run_export_unique_procedures()     # ⑧
 
 
 def main() -> None:
