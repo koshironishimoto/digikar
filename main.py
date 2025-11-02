@@ -10,12 +10,12 @@ from apps.find_katakana_patients import find_katakana_patients
 from apps.inspect_headers import show_latest_headers
 from apps.export_unique_patients import export_unique_patients
 from apps.export_unique_karte_core import export_unique_karte_core
-from apps.join_procedure_with_patients import join_procedure_with_patients  # ⑥
-from apps.analyze_procedure_data import analyze_procedure_data              # ⑦ 追加
-from apps.export_unique_procedures import export_unique_procedures          # ⑧ 追加
+from apps.join_procedure_with_patients import join_procedure_with_patients
+from apps.analyze_procedure_data import analyze_procedure_data  # ★ 追加（⑦）
 
 
-def run_duplicate_check() -> None:
+# --- 分析実行関数群 ---
+def run_duplicate_check():
     print("\n--- ① 氏名あたり患者番号の重複チェック ---")
     try:
         find_duplicate_patients()
@@ -23,7 +23,7 @@ def run_duplicate_check() -> None:
         print(f"⚠ 重複チェックでエラー: {e}")
 
 
-def run_katakana_check() -> None:
+def run_katakana_check():
     print("\n--- ② カタカナ氏名の患者一覧 ---")
     try:
         find_katakana_patients()
@@ -31,7 +31,7 @@ def run_katakana_check() -> None:
         print(f"⚠ カタカナ抽出でエラー: {e}")
 
 
-def run_show_headers() -> None:
+def run_show_headers():
     print("\n--- ③ 各テーブルの最新Parquetヘッダー確認 ---")
     try:
         show_latest_headers()
@@ -39,7 +39,7 @@ def run_show_headers() -> None:
         print(f"⚠ ヘッダー確認でエラー: {e}")
 
 
-def run_export_unique_patients() -> None:
+def run_export_unique_patients():
     print("\n--- ④ 一意の患者リストを出力（CSV/Parquet） ---")
     try:
         export_unique_patients()
@@ -47,7 +47,7 @@ def run_export_unique_patients() -> None:
         print(f"⚠ 一意患者リスト出力でエラー: {e}")
 
 
-def run_export_unique_karte_core() -> None:
+def run_export_unique_karte_core():
     print("\n--- ⑤ カルテID×患者番号で一意化したリストを出力（CSV/Parquet） ---")
     try:
         export_unique_karte_core()
@@ -55,7 +55,7 @@ def run_export_unique_karte_core() -> None:
         print(f"⚠ karte一意リスト出力でエラー: {e}")
 
 
-def run_join_procedure_with_patients() -> None:
+def run_join_procedure_with_patients():
     print("\n--- ⑥ procedure に患者番号・氏名を付与して出力（CSV/Parquet） ---")
     try:
         join_procedure_with_patients()
@@ -63,46 +63,37 @@ def run_join_procedure_with_patients() -> None:
         print(f"⚠ procedure結合出力でエラー: {e}")
 
 
-def run_analyze_procedure_data() -> None:
-    print("\n--- ⑦ procedure集計のサマリ表示（ターミナル出力） ---")
+def run_analyze_procedure_data():
+    print("\n--- ⑦ procedure集計データを確認（ヘッダーと件数のみ表示） ---")
     try:
         analyze_procedure_data()
     except Exception as e:
-        print(f"⚠ procedure集計でエラー: {e}")
+        print(f"⚠ procedure解析でエラー: {e}")
 
 
-def run_export_unique_procedures() -> None:
-    print("\n--- ⑧ 一意の処置行為リストを出力（CSV/Parquet） ---")
-    try:
-        export_unique_procedures()
-    except Exception as e:
-        print(f"⚠ 一意の処置行為リスト出力でエラー: {e}")
+# --- メイン実行 ---
+def run_post_analyses():
+    """結合完了後に行う分析をまとめて実行"""
+    run_duplicate_check()
+    run_katakana_check()
+    run_show_headers()
+    run_export_unique_patients()
+    run_export_unique_karte_core()
+    run_join_procedure_with_patients()
+    run_analyze_procedure_data()  # ★ 最後に追加（シンプル化）
 
 
-def run_post_analyses() -> None:
-    """結合完了後に行う分析をまとめて実行（依存関係順）"""
-    run_duplicate_check()              # ①
-    run_katakana_check()               # ②
-    run_show_headers()                 # ③
-    run_export_unique_patients()       # ④
-    run_export_unique_karte_core()     # ⑤
-    run_join_procedure_with_patients() # ⑥（⑦,⑧の前提）
-    run_analyze_procedure_data()       # ⑦
-    run_export_unique_procedures()     # ⑧
-
-
-def main() -> None:
+def main():
     start = datetime.now()
     print("=== データ結合を開始します ===")
 
-    # data/ 配下の business_report_YYYYMMDD_YYYYMMDD を走査して
-    # 「処置行為集計.csv」「カルテ集計.csv」「傷病名一覧.csv」を縦結合（merge_data.py の設定に依存）
+    # business_report_YYYYMMDD_YYYYMMDD を走査して各CSVを結合
     dfs = load_all_periods()
 
-    # 結合結果を output/ に出力（CSV と Parquet）
+    # 結合結果を output/ に出力
     save_outputs(dfs)
 
-    # 結合直後に分析を実行（最新 Parquet を使ってターミナル出力）
+    # 結合直後に一連の分析を実行
     run_post_analyses()
 
     dur = (datetime.now() - start).total_seconds()
