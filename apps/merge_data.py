@@ -75,17 +75,29 @@ def load_all_periods() -> dict[str, pd.DataFrame]:
     return combined
 
 def save_outputs(dfs: dict[str, pd.DataFrame]):
-    """CSV (UTF-8-BOM) と Parquet の保存"""
+    """CSV (UTF-8-BOM) と Parquet の保存（例外時も強制保存）"""
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     for key, df in dfs.items():
+        # --- CSV 出力 ---
         csv_out = OUTPUT_DIR / f"{key}_{ts}.csv"
         df.to_csv(csv_out, index=False, encoding="utf-8-sig")
-        try:
-            pq_out = OUTPUT_DIR / f"{key}_{ts}.parquet"
-            df.to_parquet(pq_out, index=False)
-        except Exception:
-            pass
         print(f"✅ 出力完了: {csv_out.name}")
+
+        # --- Parquet 出力 ---
+        pq_out = OUTPUT_DIR / f"{key}_{ts}.parquet"
+        try:
+            # 通常の書き出し
+            df.to_parquet(pq_out, index=False, engine="pyarrow", compression="snappy")
+            print(f"✅ 出力完了: {pq_out.name}")
+        except Exception as e:
+            print(f"⚠ Parquet 出力失敗（{key}）: {e}")
+            # 型混在・辞書・リスト対策
+            df2 = df.copy()
+            for c in df2.columns:
+                df2[c] = df2[c].apply(lambda x: str(x) if isinstance(x, (list, dict)) else x)
+            df2.to_parquet(pq_out, index=False, engine="pyarrow", compression="snappy")
+            print(f"✅ （整形後）Parquet 出力完了: {pq_out.name}")
+
 
 # ==========================================
 # メイン処理

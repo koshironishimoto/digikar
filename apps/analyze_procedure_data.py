@@ -39,11 +39,6 @@ def analyze_procedure_data() -> None:
     print(f"👥 一意患者数: {n_patients:,}")
     print(f"💊 処置行為の種類数: {n_proc_types:,}")
 
-    # 簡易上位10件表示（例：処置行為別件数）
-    if "処置行為" in df.columns:
-        print("\n🔝 処置行為トップ10（件数順）:")
-        print(df["処置行為"].value_counts().head(10))
-
 
 if __name__ == "__main__":
     analyze_procedure_data()

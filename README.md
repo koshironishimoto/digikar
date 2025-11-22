@@ -59,4 +59,10 @@ git add README.md
 git commit -m "Add README.md with project description"
 git push
 
+## FutureNet
+必要なファイル
+#1 18透析回数
+#2 31透析記録
+#3 32バイタル
+#4 33愁訴処置
 
